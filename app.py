@@ -4,128 +4,202 @@ import pdfplumber
 # -------------------------
 # Page Config
 # -------------------------
-st.set_page_config(page_title="ResumeIQ", page_icon="📄")
+st.set_page_config(page_title="ResumeIQ", page_icon="📄", layout="wide")
+
+# -------------------------
+# PREMIUM CSS (Glass + Animations)
+# -------------------------
+st.markdown("""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+html, body, [class*="css"] {
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Background */
+.stApp {
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: white;
+}
+
+/* Headings */
+h1, h2, h3 {
+    color: #00ffd5;
+}
+
+/* Glass Card */
+.card {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
+    padding: 15px;
+    border-radius: 15px;
+    margin-bottom: 12px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: fadeInUp 0.6s ease;
+}
+
+/* Hover effect */
+.card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 8px 20px rgba(0,255,213,0.2);
+}
+
+/* Buttons */
+.stButton>button {
+    background: linear-gradient(90deg, #00ffd5, #00c6ff);
+    color: black;
+    border-radius: 10px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.stButton>button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px #00ffd5;
+}
+
+/* Progress */
+.stProgress > div > div {
+    background: linear-gradient(90deg, #00ffd5, #00c6ff);
+}
+
+/* Animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+section {
+    animation: fadeInUp 0.8s ease;
+}
+
+</style>
+""", unsafe_allow_html=True)
 
 # -------------------------
 # Header
 # -------------------------
 st.title("📄 ResumeIQ")
-st.markdown("### AI-Powered Resume Analyzer")
+st.markdown("### 🚀 AI Resume Analyzer")
 st.markdown("---")
 
 # -------------------------
-# Role Selection
+# Job Roles
 # -------------------------
-role = st.selectbox("Select Job Role", ["QA", "Developer"])
+role = st.selectbox("Select Job Role", [
+    "QA",
+    "Developer",
+    "Data Analyst",
+    "Data Scientist",
+    "DevOps Engineer",
+    "Web Developer"
+])
 
 # -------------------------
-# File Upload
+# Upload Resume
 # -------------------------
-file = st.file_uploader("Upload Resume (PDF)", type=["pdf"], key="resume_upload")
+file = st.file_uploader("Upload Resume (PDF)", type=["pdf"])
 
 # -------------------------
-# Extract Text Function
+# Extract Text
 # -------------------------
 def extract_text(file):
     text = ""
     with pdfplumber.open(file) as pdf:
         for page in pdf.pages:
-            page_text = page.extract_text()
-            if page_text:
-                text += page_text + "\n"
-    return text
-
-# -------------------------
-# ATS Score Function
-# -------------------------
-def calculate_ats_score(text, keywords):
-    score = 0
-    text = text.lower()
-
-    for word in keywords:
-        if word in text:
-            score += 1
-
-    return int((score / len(keywords)) * 100)
-
-# -------------------------
-# Suggestions Function
-# -------------------------
-def generate_suggestions(text, score):
-    tips = []
-    text_lower = text.lower()
-
-    if "project" not in text_lower:
-        tips.append("📌 Add a Projects section to showcase your work.")
-
-    if "skills" not in text_lower:
-        tips.append("📌 Include a Skills section with relevant technologies.")
-
-    if "experience" not in text_lower:
-        tips.append("📌 Add Experience section (internship/freelance counts too).")
-
-    if len(text) < 1000:
-        tips.append("📌 Resume content is too short. Add more details.")
-
-    if score < 50:
-        tips.append("⚠️ Low ATS score – add more relevant keywords.")
-    elif score < 75:
-        tips.append("👍 Good, but can improve by adding more role-specific keywords.")
-    else:
-        tips.append("🔥 Strong resume! Minor improvements can make it perfect.")
-
-    return tips
+            if page.extract_text():
+                text += page.extract_text()
+    return text.lower()
 
 # -------------------------
 # Keywords
 # -------------------------
-qa_keywords = [
-    "testing", "selenium", "automation", "jira",
-    "test cases", "manual testing", "bug"
-]
-
-dev_keywords = [
-    "python", "java", "api", "database",
-    "sql", "backend", "frontend"
-]
+keywords_dict = {
+    "QA": ["testing", "selenium", "automation", "jira", "bug"],
+    "Developer": ["python", "java", "api", "sql", "backend"],
+    "Data Analyst": ["excel", "sql", "tableau", "power bi", "analysis"],
+    "Data Scientist": ["python", "machine learning", "pandas", "numpy", "model"],
+    "DevOps Engineer": ["docker", "kubernetes", "aws", "ci/cd", "linux"],
+    "Web Developer": ["html", "css", "javascript", "react", "frontend"]
+}
 
 # -------------------------
-# Main Logic
+# Score
 # -------------------------
-if file is not None:
-    with st.container():
-        st.success("✅ Resume uploaded successfully!")
+def calculate_score(text, keywords):
+    match = sum(1 for k in keywords if k in text)
+    return int((match / len(keywords)) * 100)
 
-        col1, col2 = st.columns(2)
+# -------------------------
+# Missing Keywords
+# -------------------------
+def find_missing(text, keywords):
+    return [k for k in keywords if k not in text]
 
-        with col1:
-            st.write("📂 Filename:", file.name)
+# -------------------------
+# Suggestions
+# -------------------------
+def suggestions(score):
+    if score < 50:
+        return "Add more relevant skills and keywords."
+    elif score < 75:
+        return "Good resume, but can improve."
+    else:
+        return "Excellent resume!"
 
-        with col2:
-            st.write("📦 Size:", file.size, "bytes")
+# -------------------------
+# MAIN LOGIC
+# -------------------------
+if file:
+    st.success("✅ Resume uploaded successfully!")
 
-    # Extract text
     text = extract_text(file)
+    keywords = keywords_dict[role]
 
-    st.subheader("📄 Extracted Resume Text")
-    st.text_area("Resume Content", text, height=250)
+    score = calculate_score(text, keywords)
+    missing = find_missing(text, keywords)
 
-    # Select keywords
-    keywords = qa_keywords if role == "QA" else dev_keywords
+    # Dashboard
+    st.markdown("## 📊 Resume Analysis")
 
-    # Calculate ATS score
-    score = calculate_ats_score(text, keywords)
+    col1, col2 = st.columns(2)
 
-    st.subheader("📊 ATS Score")
-    st.metric(label="Your Score", value=f"{score}%")
-    st.progress(score / 100)
+    with col1:
+        st.metric("ATS Score", f"{score}%")
+        st.progress(score / 100)
+
+    with col2:
+        st.markdown("### 📌 Feedback")
+        if score < 50:
+            st.error("Needs Improvement ❌")
+        elif score < 75:
+            st.warning("Good ⚠️")
+        else:
+            st.success("Excellent ✅")
 
     # Suggestions
-    tips = generate_suggestions(text, score)
+    st.markdown("## 💡 Suggestions")
+    st.markdown(f"<div class='card'>{suggestions(score)}</div>", unsafe_allow_html=True)
 
-    st.subheader("💡 Suggestions to Improve")
-    for tip in tips:
-        st.markdown(f"- {tip}")
+    # Missing Keywords
+    st.markdown("## ❌ Missing Keywords")
+
+    if missing:
+        for word in missing:
+            st.markdown(f"<div class='card'>🔴 {word}</div>", unsafe_allow_html=True)
+    else:
+        st.success("No missing keywords!")
+
+    # Resume Preview
+    st.markdown("## 📄 Resume Content")
+    st.text_area("", text, height=200)
 
     st.markdown("---")
-    st.markdown("### 🚀 Improve your resume to increase your chances!")
+    st.markdown("### ✅ Analysis Complete")
