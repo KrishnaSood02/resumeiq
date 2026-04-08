@@ -1,5 +1,6 @@
 import streamlit as st
 import pdfplumber
+import plotly.graph_objects as go
 
 # -------------------------
 # Page Config
@@ -7,7 +8,7 @@ import pdfplumber
 st.set_page_config(page_title="ResumeIQ", page_icon="📄", layout="wide")
 
 # -------------------------
-# PREMIUM CSS (Glass + Animations)
+# PREMIUM CSS
 # -------------------------
 st.markdown("""
 <style>
@@ -17,81 +18,63 @@ html, body, [class*="css"] {
     font-family: 'Poppins', sans-serif;
 }
 
-/* Background */
 .stApp {
     background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
     color: white;
 }
 
-/* Headings */
 h1, h2, h3 {
     color: #00ffd5;
 }
 
-/* Glass Card */
 .card {
     background: rgba(255,255,255,0.08);
     backdrop-filter: blur(10px);
     padding: 15px;
     border-radius: 15px;
-    margin-bottom: 12px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    animation: fadeInUp 0.6s ease;
+    margin-bottom: 10px;
 }
 
-/* Hover effect */
-.card:hover {
-    transform: translateY(-5px) scale(1.02);
-    box-shadow: 0 8px 20px rgba(0,255,213,0.2);
+/* Glow animation */
+@keyframes glow {
+    from { text-shadow: 0 0 10px #00ffd5; }
+    to { text-shadow: 0 0 20px #00c6ff, 0 0 30px #0072ff; }
 }
-
-/* Buttons */
-.stButton>button {
-    background: linear-gradient(90deg, #00ffd5, #00c6ff);
-    color: black;
-    border-radius: 10px;
-    font-weight: bold;
-    transition: all 0.3s ease;
-}
-
-.stButton>button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 10px #00ffd5;
-}
-
-/* Progress */
-.stProgress > div > div {
-    background: linear-gradient(90deg, #00ffd5, #00c6ff);
-}
-
-/* Animation */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-section {
-    animation: fadeInUp 0.8s ease;
-}
-
 </style>
 """, unsafe_allow_html=True)
 
 # -------------------------
-# Header
+# HERO HEADER
 # -------------------------
-st.title("📄 ResumeIQ")
-st.markdown("### 🚀 AI Resume Analyzer")
-st.markdown("---")
+st.markdown("""
+<div style='text-align: center; padding: 30px 0;'>
+
+<h1 style="
+    font-size: 3rem;
+    font-weight: 700;
+    background: linear-gradient(90deg, #00ffd5, #00c6ff, #0072ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: glow 2s ease-in-out infinite alternate;
+">
+ResumeIQ
+</h1>
+
+<p style='font-size: 1.3rem; color: #cbd5e1;'>
+🚀 Smart Resume Analyzer Dashboard
+</p>
+
+<p style='font-size: 1rem; color: #94a3b8;'>
+Analyze • Improve • Get Hired
+</p>
+
+</div>
+
+<hr style="border: 1px solid #00ffd5; opacity: 0.3;">
+""", unsafe_allow_html=True)
 
 # -------------------------
-# Job Roles
+# Job Role
 # -------------------------
 role = st.selectbox("Select Job Role", [
     "QA",
@@ -131,28 +114,14 @@ keywords_dict = {
 }
 
 # -------------------------
-# Score
+# Score Logic
 # -------------------------
 def calculate_score(text, keywords):
     match = sum(1 for k in keywords if k in text)
     return int((match / len(keywords)) * 100)
 
-# -------------------------
-# Missing Keywords
-# -------------------------
 def find_missing(text, keywords):
     return [k for k in keywords if k not in text]
-
-# -------------------------
-# Suggestions
-# -------------------------
-def suggestions(score):
-    if score < 50:
-        return "Add more relevant skills and keywords."
-    elif score < 75:
-        return "Good resume, but can improve."
-    else:
-        return "Excellent resume!"
 
 # -------------------------
 # MAIN LOGIC
@@ -166,38 +135,90 @@ if file:
     score = calculate_score(text, keywords)
     missing = find_missing(text, keywords)
 
-    # Dashboard
-    st.markdown("## 📊 Resume Analysis")
+    matched_count = len(keywords) - len(missing)
+    missing_count = len(missing)
+
+    # -------------------------
+    # METRICS
+    # -------------------------
+    st.markdown("## 📊 Resume Dashboard")
+
+    col1, col2, col3 = st.columns(3)
+
+    col1.metric("ATS Score", f"{score}%")
+    col2.metric("Matched Skills", matched_count)
+    col3.metric("Missing Skills", missing_count)
+
+    st.progress(score / 100)
+
+    # -------------------------
+    # CHARTS SIDE-BY-SIDE 🔥
+    # -------------------------
+    st.markdown("## 📈 Skill Analysis")
 
     col1, col2 = st.columns(2)
 
+    # Bar Chart
     with col1:
-        st.metric("ATS Score", f"{score}%")
-        st.progress(score / 100)
+        fig = go.Figure(data=[
+            go.Bar(
+                x=["Matched", "Missing"],
+                y=[matched_count, missing_count]
+            )
+        ])
 
+        fig.update_layout(
+            title="Match vs Missing",
+            template="plotly_dark",
+            height=300
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
+
+    # Pie Chart (Donut)
     with col2:
-        st.markdown("### 📌 Feedback")
-        if score < 50:
-            st.error("Needs Improvement ❌")
-        elif score < 75:
-            st.warning("Good ⚠️")
-        else:
-            st.success("Excellent ✅")
+        pie = go.Figure(data=[go.Pie(
+            labels=["Matched", "Missing"],
+            values=[matched_count, missing_count],
+            hole=0.4
+        )])
 
-    # Suggestions
-    st.markdown("## 💡 Suggestions")
-    st.markdown(f"<div class='card'>{suggestions(score)}</div>", unsafe_allow_html=True)
+        pie.update_layout(
+            title="Distribution",
+            template="plotly_dark",
+            height=300
+        )
 
-    # Missing Keywords
-    st.markdown("## ❌ Missing Keywords")
+        st.plotly_chart(pie, use_container_width=True)
+
+    # -------------------------
+    # FEEDBACK
+    # -------------------------
+    st.markdown("## 🎯 Feedback")
+
+    if score < 50:
+        st.error("Your resume needs improvement.")
+    elif score < 75:
+        st.warning("Good, but can improve.")
+    else:
+        st.success("Excellent resume!")
+
+    # -------------------------
+    # MISSING SKILLS GRID
+    # -------------------------
+    st.markdown("## ❌ Missing Skills")
 
     if missing:
-        for word in missing:
-            st.markdown(f"<div class='card'>🔴 {word}</div>", unsafe_allow_html=True)
+        cols = st.columns(3)
+        for i, word in enumerate(missing):
+            with cols[i % 3]:
+                st.markdown(f"<div class='card'>🔴 {word}</div>", unsafe_allow_html=True)
     else:
-        st.success("No missing keywords!")
+        st.success("No missing skills!")
 
-    # Resume Preview
+    # -------------------------
+    # RESUME TEXT
+    # -------------------------
     st.markdown("## 📄 Resume Content")
     st.text_area("", text, height=200)
 
