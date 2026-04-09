@@ -37,7 +37,7 @@
 
 ---
 
-##🧠 How It Works
+## 🧠 How It Works
 
 1. Upload your resume (PDF)
 2. Select your target job role
@@ -51,7 +51,7 @@
 
 ---
 
-##📊 Example Output
+## 📊 Example Output
 
 ATS Score: 80%
 Matched Skills: 4
@@ -69,6 +69,6 @@ streamlit run app.py
 ```
 ---
 
-👨‍💻 Author
+## 👨‍💻 Author
 
 Krishna Sood
