@@ -26,14 +26,13 @@
 ## 📸 Screenshots
 
 ### 🏠 Home Screen
-<img width="1918" height="887" alt="image" src="https://github.com/user-attachments/assets/daff2855-a907-49cd-9468-49fef3f86597" />
+<img width="1918" height="887" alt="image" src="https://github.com/user-attachments/assets/2064dddc-646c-45fa-ae05-224d840c6072" />
 
 ### 📊 Analysis Dashboard
-<img width="1795" height="747" alt="image" src="https://github.com/user-attachments/assets/d8027355-0ad2-4ccf-9253-666bcb2d1711" />
+<img width="1827" height="700" alt="image" src="https://github.com/user-attachments/assets/563eecd2-0bce-43f0-8f1b-f2b2058d1334" />
 
 ### ❌ Missing Keywords
-<img width="1796" height="887" alt="image" src="https://github.com/user-attachments/assets/3dba6754-5815-45e8-b23e-87053d122b8a" />
-
+<img width="1918" height="446" alt="image" src="https://github.com/user-attachments/assets/074c79c8-e3c9-4d5e-98e7-53f87debf492" />
 
 
 
