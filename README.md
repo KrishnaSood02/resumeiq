@@ -19,7 +19,8 @@
 
 - Python  
 - Streamlit  
-- pdfplumber  
+- pdfplumber
+- Plotly
 
 ---
 
@@ -34,8 +35,27 @@
 ### ❌ Missing Keywords
 <img width="1918" height="446" alt="image" src="https://github.com/user-attachments/assets/074c79c8-e3c9-4d5e-98e7-53f87debf492" />
 
+---
 
+##🧠 How It Works
 
+1. Upload your resume (PDF)
+2. Select your target job role
+3. System analyzes resume using:
+   Keyword matching
+   Skill comparison
+4. Outputs:
+   ATS Score
+   Missing Skills
+   Visual Dashboard
+
+---
+
+##📊 Example Output
+
+ATS Score: 80%
+Matched Skills: 4
+Missing Skills: SQL, API
 
 ---
 
@@ -46,3 +66,9 @@ git clone https://github.com/yourusername/resumeiq.git
 cd resumeiq
 pip install -r requirements.txt
 streamlit run app.py
+```
+---
+
+👨‍💻 Author
+
+Krishna Sood
