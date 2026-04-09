@@ -53,8 +53,8 @@
 
 ## 📊 Example Output
 
-ATS Score: 80%
-Matched Skills: 4
+ATS Score: 80% <br>
+Matched Skills: 4 <br>
 Missing Skills: SQL, API
 
 ---
